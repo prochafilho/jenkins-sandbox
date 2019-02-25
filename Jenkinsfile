@@ -1,9 +1,15 @@
 pipeline {
-    agent { docker { image 'node:6.3' } }
+    agent any
     stages {
-        stage('build') {
+        stage('Deploy') {
             steps {
-                sh 'npm --version'
+                retry(3) {
+                    sh './flakey-deploy.sh'
+                }
+                
+                timeout(time: 3, unit: 'MINUTES') {
+                    sh './health-check.sh'
+                }
             }
         }
     }
